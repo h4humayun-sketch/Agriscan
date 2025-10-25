@@ -7,13 +7,19 @@ import FloatingTabBar, { TabBarItem } from '@/components/FloatingTabBar';
 import { colors } from '@/styles/commonStyles';
 
 export default function TabLayout() {
-  // Define the tabs configuration for AGRISCAN (Community section removed)
+  // Define the tabs configuration for AGRISCAN with AI Chatbot
   const tabs: TabBarItem[] = [
     {
       name: '(home)',
       route: '/(tabs)/(home)/',
       icon: 'camera.fill',
       label: 'Scan Plant',
+    },
+    {
+      name: 'chatbot',
+      route: '/(tabs)/chatbot',
+      icon: 'message.fill',
+      label: 'AI Chat',
     },
     {
       name: 'watering',
@@ -43,6 +49,10 @@ export default function TabLayout() {
           <Icon sf="camera.fill" drawable="ic_camera" />
           <Label>Scan Plant</Label>
         </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="chatbot">
+          <Icon sf="message.fill" drawable="ic_message" />
+          <Label>AI Chat</Label>
+        </NativeTabs.Trigger>
         <NativeTabs.Trigger name="watering">
           <Icon sf="drop.fill" drawable="ic_water" />
           <Label>Watering</Label>
@@ -69,6 +79,7 @@ export default function TabLayout() {
         }}
       >
         <Stack.Screen name="(home)" />
+        <Stack.Screen name="chatbot" />
         <Stack.Screen name="watering" />
         <Stack.Screen name="plants" />
         <Stack.Screen name="sustainability" />

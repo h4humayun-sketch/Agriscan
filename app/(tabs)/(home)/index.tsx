@@ -155,7 +155,7 @@ export default function ScanPlantScreen() {
 
   const renderHeaderRight = () => (
     <Pressable
-      onPress={() => Alert.alert("Info", "AGRISCAN - AI-Powered Plant Health Assistant\n\nProject by Affan & Eyad\nSupervisor: Ms. Savera Rehman\nNSRC Project - Qatar National Vision 2030")}
+      onPress={() => Alert.alert("Info", "AGRISCAN - AI-Powered Plant Health Assistant\n\nProject by Affan & Eyad\nSupervisor: Ms. Savera Rehman\nNSRC Project – Qatar National Vision 2030")}
       style={styles.headerButtonContainer}
     >
       <IconSymbol name="info.circle" color={colors.primary} size={24} />
@@ -184,14 +184,20 @@ export default function ScanPlantScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header Section with Decorative Stars */}
+          {/* Header Section with Decorative Stars and Leaves */}
           <View style={styles.header}>
             <View style={styles.decorativeStarsTop}>
               <View style={styles.starTopLeft}>
                 <DecorativeStar size={20} color={colors.primary} delay={0} />
               </View>
+              <View style={styles.leafTopLeft}>
+                <IconSymbol name="leaf.fill" size={24} color={colors.secondary + '60'} />
+              </View>
               <View style={styles.starTopRight}>
                 <DecorativeStar size={16} color={colors.highlight} delay={500} />
+              </View>
+              <View style={styles.leafTopRight}>
+                <IconSymbol name="leaf.fill" size={20} color={colors.primary + '60'} />
               </View>
             </View>
             <View style={styles.logoContainer}>
@@ -206,8 +212,14 @@ export default function ScanPlantScreen() {
               <View style={styles.starBottomLeft}>
                 <DecorativeStar size={14} color={colors.secondary} delay={1000} />
               </View>
+              <View style={styles.leafBottomLeft}>
+                <IconSymbol name="leaf.fill" size={18} color={colors.highlight + '60'} />
+              </View>
               <View style={styles.starBottomRight}>
                 <DecorativeStar size={18} color={colors.primary} delay={1500} />
+              </View>
+              <View style={styles.leafBottomRight}>
+                <IconSymbol name="leaf.fill" size={22} color={colors.secondary + '60'} />
               </View>
             </View>
           </View>
@@ -219,15 +231,31 @@ export default function ScanPlantScreen() {
                 <Image source={{ uri: selectedImage }} style={styles.previewImage} />
                 {isAnalyzing && (
                   <View style={styles.analyzingOverlay}>
-                    <ActivityIndicator size="large" color={colors.primary} />
-                    <Text style={styles.analyzingText}>Analyzing plant health...</Text>
+                    <View style={styles.analyzingContent}>
+                      <ActivityIndicator size="large" color={colors.primary} />
+                      <Text style={styles.analyzingText}>Analyzing plant health...</Text>
+                      <View style={styles.analyzingLeaves}>
+                        <IconSymbol name="leaf.fill" size={20} color="#FFFFFF" style={{ opacity: 0.6 }} />
+                        <IconSymbol name="leaf.fill" size={24} color="#FFFFFF" style={{ opacity: 0.8 }} />
+                        <IconSymbol name="leaf.fill" size={20} color="#FFFFFF" style={{ opacity: 0.6 }} />
+                      </View>
+                    </View>
                   </View>
                 )}
               </Animated.View>
             ) : (
               <View style={styles.placeholderContainer}>
-                <IconSymbol name="camera.fill" size={64} color={colors.secondary} />
+                <View style={styles.placeholderIconContainer}>
+                  <IconSymbol name="camera.fill" size={64} color={colors.secondary} />
+                  <View style={styles.placeholderLeaf1}>
+                    <IconSymbol name="leaf.fill" size={28} color={colors.primary + '40'} />
+                  </View>
+                  <View style={styles.placeholderLeaf2}>
+                    <IconSymbol name="leaf.fill" size={24} color={colors.highlight + '40'} />
+                  </View>
+                </View>
                 <Text style={styles.placeholderText}>Take or upload a photo of your plant</Text>
+                <Text style={styles.placeholderSubtext}>Get instant disease detection and treatment advice</Text>
               </View>
             )}
           </View>
@@ -251,56 +279,105 @@ export default function ScanPlantScreen() {
             </Pressable>
           </View>
 
-          {/* Disease Result */}
+          {/* Disease Result - Enhanced Display */}
           {diseaseResult && !isAnalyzing && (
             <Animated.View entering={FadeIn} style={styles.resultContainer}>
-              <View style={styles.resultHeader}>
-                <IconSymbol 
-                  name={diseaseResult.severity === "None" ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"} 
-                  size={32} 
-                  color={diseaseResult.severity === "None" ? colors.primary : colors.accent} 
-                />
-                <View style={styles.resultHeaderText}>
-                  <Text style={styles.diseaseName}>{diseaseResult.name}</Text>
-                  <Text style={[
-                    styles.severityText,
-                    diseaseResult.severity === "None" && styles.severityNone,
-                    diseaseResult.severity === "Low" && styles.severityLow,
-                    diseaseResult.severity === "Moderate" && styles.severityModerate,
-                  ]}>
-                    Severity: {diseaseResult.severity}
-                  </Text>
-                </View>
-              </View>
-
-              <Text style={styles.descriptionText}>{diseaseResult.description}</Text>
-
-              <View style={styles.treatmentSection}>
-                <Text style={styles.treatmentTitle}>
-                  {diseaseResult.severity === "None" ? "Care Recommendations:" : "Eco-Friendly Treatments:"}
-                </Text>
-                {diseaseResult.treatments.map((treatment, index) => (
-                  <View key={index} style={styles.treatmentItem}>
-                    <IconSymbol name="leaf.fill" size={16} color={colors.primary} />
-                    <Text style={styles.treatmentText}>{treatment}</Text>
-                  </View>
-                ))}
-              </View>
-
-              <Pressable 
-                style={[styles.actionButton, styles.resetButton]}
-                onPress={resetScan}
+              <LinearGradient
+                colors={diseaseResult.severity === "None" 
+                  ? [colors.primary + '15', colors.card] 
+                  : [colors.accent + '15', colors.card]}
+                style={styles.resultGradient}
               >
-                <IconSymbol name="arrow.clockwise" size={20} color="#FFFFFF" />
-                <Text style={styles.buttonText}>Scan Another Plant</Text>
-              </Pressable>
+                <View style={styles.resultHeader}>
+                  <View style={styles.resultIconContainer}>
+                    <IconSymbol 
+                      name={diseaseResult.severity === "None" ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"} 
+                      size={40} 
+                      color={diseaseResult.severity === "None" ? colors.primary : colors.accent} 
+                    />
+                  </View>
+                  <View style={styles.resultHeaderText}>
+                    <Text style={styles.resultLabel}>
+                      {diseaseResult.severity === "None" ? "✓ Diagnosis Complete" : "⚠️ Issue Detected"}
+                    </Text>
+                    <Text style={styles.diseaseName}>{diseaseResult.name}</Text>
+                    <View style={styles.severityBadge}>
+                      <Text style={[
+                        styles.severityText,
+                        diseaseResult.severity === "None" && styles.severityNone,
+                        diseaseResult.severity === "Low" && styles.severityLow,
+                        diseaseResult.severity === "Moderate" && styles.severityModerate,
+                      ]}>
+                        {diseaseResult.severity === "None" ? "Healthy" : `Severity: ${diseaseResult.severity}`}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.divider} />
+
+                <View style={styles.descriptionSection}>
+                  <View style={styles.sectionHeader}>
+                    <IconSymbol name="doc.text.fill" size={20} color={colors.primary} />
+                    <Text style={styles.sectionTitle}>Description</Text>
+                  </View>
+                  <Text style={styles.descriptionText}>{diseaseResult.description}</Text>
+                </View>
+
+                <View style={styles.divider} />
+
+                <View style={styles.treatmentSection}>
+                  <View style={styles.sectionHeader}>
+                    <IconSymbol name="leaf.fill" size={20} color={colors.primary} />
+                    <Text style={styles.sectionTitle}>
+                      {diseaseResult.severity === "None" ? "Care Recommendations" : "How to Cure"}
+                    </Text>
+                  </View>
+                  <Text style={styles.treatmentIntro}>
+                    {diseaseResult.severity === "None" 
+                      ? "Keep your plant healthy with these tips:" 
+                      : "Follow these eco-friendly treatment steps:"}
+                  </Text>
+                  {diseaseResult.treatments.map((treatment, index) => (
+                    <View key={index} style={styles.treatmentItem}>
+                      <View style={styles.treatmentNumber}>
+                        <Text style={styles.treatmentNumberText}>{index + 1}</Text>
+                      </View>
+                      <View style={styles.treatmentContent}>
+                        <Text style={styles.treatmentText}>{treatment}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+
+                <View style={styles.resultActions}>
+                  <Pressable 
+                    style={[styles.actionButton, styles.resetButton]}
+                    onPress={resetScan}
+                  >
+                    <IconSymbol name="arrow.clockwise" size={20} color="#FFFFFF" />
+                    <Text style={styles.buttonText}>Scan Another Plant</Text>
+                  </Pressable>
+                </View>
+
+                {/* Decorative leaves in result */}
+                <View style={styles.resultDecoration}>
+                  <IconSymbol name="leaf.fill" size={16} color={colors.primary + '20'} />
+                  <IconSymbol name="leaf.fill" size={20} color={colors.secondary + '20'} />
+                  <IconSymbol name="leaf.fill" size={16} color={colors.highlight + '20'} />
+                </View>
+              </LinearGradient>
             </Animated.View>
           )}
 
           {/* Features Info */}
           {!selectedImage && (
             <View style={styles.featuresContainer}>
-              <Text style={styles.featuresTitle}>How It Works</Text>
+              <View style={styles.featuresTitleContainer}>
+                <IconSymbol name="sparkles" size={24} color={colors.primary} />
+                <Text style={styles.featuresTitle}>How It Works</Text>
+                <IconSymbol name="sparkles" size={24} color={colors.primary} />
+              </View>
               
               <View style={styles.featureItem}>
                 <View style={styles.featureIcon}>
@@ -309,6 +386,9 @@ export default function ScanPlantScreen() {
                 <View style={styles.featureContent}>
                   <Text style={styles.featureTitle}>Capture or Upload</Text>
                   <Text style={styles.featureDescription}>Take a clear photo of the affected plant leaf</Text>
+                </View>
+                <View style={styles.featureLeaf}>
+                  <IconSymbol name="leaf.fill" size={20} color={colors.secondary + '40'} />
                 </View>
               </View>
 
@@ -320,6 +400,9 @@ export default function ScanPlantScreen() {
                   <Text style={styles.featureTitle}>AI Analysis</Text>
                   <Text style={styles.featureDescription}>Our AI detects diseases and nutrient deficiencies</Text>
                 </View>
+                <View style={styles.featureLeaf}>
+                  <IconSymbol name="leaf.fill" size={20} color={colors.primary + '40'} />
+                </View>
               </View>
 
               <View style={styles.featureItem}>
@@ -329,6 +412,9 @@ export default function ScanPlantScreen() {
                 <View style={styles.featureContent}>
                   <Text style={styles.featureTitle}>Get Solutions</Text>
                   <Text style={styles.featureDescription}>Receive eco-friendly treatment recommendations</Text>
+                </View>
+                <View style={styles.featureLeaf}>
+                  <IconSymbol name="leaf.fill" size={20} color={colors.highlight + '40'} />
                 </View>
               </View>
             </View>
@@ -419,35 +505,57 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -10,
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    height: 40,
   },
   starTopLeft: {
     position: 'absolute',
     left: 20,
     top: 0,
   },
+  leafTopLeft: {
+    position: 'absolute',
+    left: 60,
+    top: 5,
+    transform: [{ rotate: '-20deg' }],
+  },
   starTopRight: {
     position: 'absolute',
     right: 20,
     top: 0,
   },
+  leafTopRight: {
+    position: 'absolute',
+    right: 60,
+    top: 5,
+    transform: [{ rotate: '20deg' }],
+  },
   decorativeStarsBottom: {
     position: 'absolute',
     bottom: -20,
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    height: 40,
   },
   starBottomLeft: {
     position: 'absolute',
     left: 40,
     bottom: 0,
   },
+  leafBottomLeft: {
+    position: 'absolute',
+    left: 80,
+    bottom: 5,
+    transform: [{ rotate: '30deg' }],
+  },
   starBottomRight: {
     position: 'absolute',
     right: 40,
     bottom: 0,
+  },
+  leafBottomRight: {
+    position: 'absolute',
+    right: 80,
+    bottom: 5,
+    transform: [{ rotate: '-30deg' }],
   },
   logoContainer: {
     position: 'relative',
@@ -487,8 +595,11 @@ const styles = StyleSheet.create({
   },
   analyzingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  analyzingContent: {
     alignItems: 'center',
   },
   analyzingText: {
@@ -496,6 +607,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginTop: 12,
+  },
+  analyzingLeaves: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
   },
   placeholderContainer: {
     width: '100%',
@@ -508,12 +624,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    position: 'relative',
+  },
+  placeholderIconContainer: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+  placeholderLeaf1: {
+    position: 'absolute',
+    top: -10,
+    right: -20,
+    transform: [{ rotate: '45deg' }],
+  },
+  placeholderLeaf2: {
+    position: 'absolute',
+    bottom: -10,
+    left: -20,
+    transform: [{ rotate: '-45deg' }],
   },
   placeholderText: {
     fontSize: 16,
+    color: colors.text,
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  placeholderSubtext: {
+    fontSize: 13,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginTop: 12,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -548,31 +687,59 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   resultContainer: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
     marginBottom: 24,
-    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-    elevation: 4,
+    borderRadius: 16,
+    overflow: 'hidden',
+    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.12)',
+    elevation: 6,
+  },
+  resultGradient: {
+    padding: 20,
+    position: 'relative',
   },
   resultHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-    gap: 12,
+    gap: 16,
+  },
+  resultIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    elevation: 3,
   },
   resultHeaderText: {
     flex: 1,
   },
-  diseaseName: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text,
+  resultLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textSecondary,
     marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  diseaseName: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  severityBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: colors.card,
   },
   severityText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
   },
   severityNone: {
     color: colors.primary,
@@ -583,42 +750,91 @@ const styles = StyleSheet.create({
   severityModerate: {
     color: colors.accent,
   },
+  divider: {
+    height: 1,
+    backgroundColor: colors.secondary + '30',
+    marginVertical: 16,
+  },
+  descriptionSection: {
+    marginBottom: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
   descriptionText: {
     fontSize: 15,
     color: colors.textSecondary,
     lineHeight: 22,
-    marginBottom: 20,
   },
   treatmentSection: {
-    marginTop: 8,
+    marginBottom: 8,
   },
-  treatmentTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 12,
+  treatmentIntro: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 16,
+    fontStyle: 'italic',
   },
   treatmentItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 12,
-    gap: 10,
+    marginBottom: 14,
+    gap: 12,
+  },
+  treatmentNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  treatmentNumberText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  treatmentContent: {
+    flex: 1,
+    paddingTop: 4,
   },
   treatmentText: {
-    flex: 1,
     fontSize: 14,
     color: colors.text,
     lineHeight: 20,
   },
+  resultActions: {
+    marginTop: 8,
+  },
+  resultDecoration: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    flexDirection: 'row',
+    gap: 8,
+  },
   featuresContainer: {
     marginBottom: 24,
+  },
+  featuresTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 20,
   },
   featuresTitle: {
     fontSize: 22,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 20,
-    textAlign: 'center',
   },
   featureItem: {
     flexDirection: 'row',
@@ -630,6 +846,7 @@ const styles = StyleSheet.create({
     gap: 16,
     boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
     elevation: 2,
+    position: 'relative',
   },
   featureIcon: {
     width: 48,
@@ -650,6 +867,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 18,
+  },
+  featureLeaf: {
+    position: 'absolute',
+    right: 16,
+    top: 16,
   },
   creditsWrapper: {
     marginTop: 8,
