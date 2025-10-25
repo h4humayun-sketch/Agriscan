@@ -1,5 +1,4 @@
 
-import React, { useState } from "react";
 import { 
   ScrollView, 
   StyleSheet, 
@@ -12,8 +11,10 @@ import {
 } from "react-native";
 import { Stack } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
+import React, { useState } from "react";
 import { colors } from "@/styles/commonStyles";
 import Animated, { FadeIn } from 'react-native-reanimated';
+import DecorativeStar from "@/components/DecorativeStar";
 
 interface WateringSchedule {
   plantType: string;
@@ -23,8 +24,8 @@ interface WateringSchedule {
 }
 
 export default function WateringScreen() {
-  const [plantType, setPlantType] = useState("");
-  const [soilMoisture, setSoilMoisture] = useState("");
+  const [plantType, setPlantType] = useState('');
+  const [soilMoisture, setSoilMoisture] = useState('');
   const [wateredToday, setWateredToday] = useState(false);
   const [schedule, setSchedule] = useState<WateringSchedule | null>(null);
 
@@ -32,18 +33,18 @@ export default function WateringScreen() {
     const now = new Date();
     const nextWatering = new Date(now);
     
-    // Simple logic based on soil moisture
-    let daysUntilNextWatering = 2; // Default
+    // Simple logic based on plant type and soil moisture
+    let daysUntilNext = 3; // default
     
     if (soilMoisture.toLowerCase().includes('dry')) {
-      daysUntilNextWatering = 1;
+      daysUntilNext = 1;
     } else if (soilMoisture.toLowerCase().includes('moist')) {
-      daysUntilNextWatering = 3;
+      daysUntilNext = 2;
     } else if (soilMoisture.toLowerCase().includes('wet')) {
-      daysUntilNextWatering = 5;
+      daysUntilNext = 4;
     }
     
-    nextWatering.setDate(now.getDate() + daysUntilNextWatering);
+    nextWatering.setDate(now.getDate() + daysUntilNext);
     
     setSchedule({
       plantType,
@@ -54,25 +55,44 @@ export default function WateringScreen() {
   };
 
   const getWateringRecommendation = () => {
-    if (!soilMoisture) return "Enter soil moisture level to get recommendations";
+    if (!schedule) return null;
     
-    if (soilMoisture.toLowerCase().includes('dry')) {
-      return "Your plant needs water soon! Water thoroughly until water drains from the bottom.";
-    } else if (soilMoisture.toLowerCase().includes('moist')) {
-      return "Soil moisture is good. Check again in 2-3 days.";
-    } else if (soilMoisture.toLowerCase().includes('wet')) {
-      return "Soil is too wet. Wait before watering again to prevent root rot.";
+    const moisture = schedule.soilMoisture.toLowerCase();
+    
+    if (moisture.includes('dry')) {
+      return {
+        icon: 'drop.fill',
+        color: colors.accent,
+        title: 'Water Soon',
+        message: 'Your plant needs watering. The soil is dry.',
+      };
+    } else if (moisture.includes('moist')) {
+      return {
+        icon: 'checkmark.circle.fill',
+        color: colors.primary,
+        title: 'Good Moisture',
+        message: 'Soil moisture is optimal. Water in 2-3 days.',
+      };
+    } else if (moisture.includes('wet')) {
+      return {
+        icon: 'exclamationmark.triangle.fill',
+        color: colors.highlight,
+        title: 'Too Wet',
+        message: 'Soil is too wet. Wait before watering again.',
+      };
     }
     
-    return "Monitor your plant regularly and adjust watering based on weather conditions.";
+    return null;
   };
+
+  const recommendation = getWateringRecommendation();
 
   return (
     <>
       {Platform.OS === 'ios' && (
         <Stack.Screen
           options={{
-            title: "Smart Watering",
+            title: "Watering & Care",
             headerStyle: {
               backgroundColor: colors.background,
             },
@@ -88,11 +108,19 @@ export default function WateringScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
+          {/* Header with Decorative Stars */}
           <View style={styles.header}>
+            <View style={styles.decorativeStarsTop}>
+              <View style={styles.starTopLeft}>
+                <DecorativeStar size={18} color={colors.primary} delay={0} />
+              </View>
+              <View style={styles.starTopRight}>
+                <DecorativeStar size={14} color="#87CEEB" delay={500} />
+              </View>
+            </View>
             <IconSymbol name="drop.fill" size={48} color={colors.primary} />
             <Text style={styles.title}>Smart Watering Assistant</Text>
-            <Text style={styles.subtitle}>Optimize your plant watering schedule</Text>
+            <Text style={styles.subtitle}>Get personalized watering recommendations</Text>
           </View>
 
           {/* Input Form */}
@@ -109,7 +137,7 @@ export default function WateringScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Soil Moisture Level</Text>
+              <Text style={styles.label}>Soil Moisture</Text>
               <TextInput
                 style={styles.input}
                 placeholder="e.g., Dry, Moist, Wet"
@@ -117,46 +145,42 @@ export default function WateringScreen() {
                 value={soilMoisture}
                 onChangeText={setSoilMoisture}
               />
-              <Text style={styles.helperText}>
-                Touch the soil 2 inches deep to check moisture
-              </Text>
             </View>
 
             <View style={styles.switchContainer}>
-              <View style={styles.switchLabel}>
-                <IconSymbol name="checkmark.circle.fill" size={24} color={wateredToday ? colors.primary : colors.textSecondary} />
-                <Text style={styles.label}>Did you water today?</Text>
-              </View>
+              <Text style={styles.label}>Did you water today?</Text>
               <Switch
                 value={wateredToday}
                 onValueChange={setWateredToday}
-                trackColor={{ false: colors.textSecondary, true: colors.secondary }}
-                thumbColor={wateredToday ? colors.primary : '#f4f3f4'}
+                trackColor={{ false: colors.textSecondary, true: colors.primary }}
+                thumbColor={wateredToday ? colors.card : '#f4f3f4'}
               />
             </View>
 
             <Pressable 
-              style={[styles.calculateButton, (!plantType || !soilMoisture) && styles.buttonDisabled]}
+              style={styles.calculateButton}
               onPress={calculateWateringSchedule}
-              disabled={!plantType || !soilMoisture}
             >
               <IconSymbol name="calendar" size={20} color="#FFFFFF" />
               <Text style={styles.buttonText}>Calculate Schedule</Text>
             </Pressable>
           </View>
 
-          {/* Schedule Result */}
-          {schedule && (
+          {/* Recommendation Result */}
+          {schedule && recommendation && (
             <Animated.View entering={FadeIn} style={styles.resultContainer}>
               <View style={styles.resultHeader}>
-                <IconSymbol name="calendar.badge.clock" size={32} color={colors.primary} />
-                <Text style={styles.resultTitle}>Your Watering Schedule</Text>
+                <IconSymbol name={recommendation.icon} size={40} color={recommendation.color} />
+                <View style={styles.resultHeaderText}>
+                  <Text style={styles.resultTitle}>{recommendation.title}</Text>
+                  <Text style={styles.resultMessage}>{recommendation.message}</Text>
+                </View>
               </View>
 
-              <View style={styles.scheduleCard}>
+              <View style={styles.scheduleDetails}>
                 <View style={styles.scheduleItem}>
                   <IconSymbol name="leaf.fill" size={20} color={colors.primary} />
-                  <View style={styles.scheduleInfo}>
+                  <View style={styles.scheduleItemText}>
                     <Text style={styles.scheduleLabel}>Plant Type</Text>
                     <Text style={styles.scheduleValue}>{schedule.plantType}</Text>
                   </View>
@@ -164,8 +188,8 @@ export default function WateringScreen() {
 
                 <View style={styles.scheduleItem}>
                   <IconSymbol name="drop.fill" size={20} color={colors.primary} />
-                  <View style={styles.scheduleInfo}>
-                    <Text style={styles.scheduleLabel}>Soil Condition</Text>
+                  <View style={styles.scheduleItemText}>
+                    <Text style={styles.scheduleLabel}>Soil Moisture</Text>
                     <Text style={styles.scheduleValue}>{schedule.soilMoisture}</Text>
                   </View>
                 </View>
@@ -173,10 +197,10 @@ export default function WateringScreen() {
                 {schedule.lastWatered && (
                   <View style={styles.scheduleItem}>
                     <IconSymbol name="checkmark.circle.fill" size={20} color={colors.primary} />
-                    <View style={styles.scheduleInfo}>
+                    <View style={styles.scheduleItemText}>
                       <Text style={styles.scheduleLabel}>Last Watered</Text>
                       <Text style={styles.scheduleValue}>
-                        {schedule.lastWatered.toLocaleDateString()} at {schedule.lastWatered.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {schedule.lastWatered.toLocaleDateString()}
                       </Text>
                     </View>
                   </View>
@@ -184,64 +208,43 @@ export default function WateringScreen() {
 
                 <View style={styles.scheduleItem}>
                   <IconSymbol name="calendar" size={20} color={colors.accent} />
-                  <View style={styles.scheduleInfo}>
+                  <View style={styles.scheduleItemText}>
                     <Text style={styles.scheduleLabel}>Next Watering</Text>
-                    <Text style={[styles.scheduleValue, styles.nextWateringValue]}>
-                      {schedule.nextWatering?.toLocaleDateString()} at 8:00 AM
+                    <Text style={styles.scheduleValue}>
+                      {schedule.nextWatering?.toLocaleDateString()}
                     </Text>
                   </View>
                 </View>
               </View>
-
-              <View style={styles.recommendationCard}>
-                <Text style={styles.recommendationTitle}>💡 Recommendation</Text>
-                <Text style={styles.recommendationText}>{getWateringRecommendation()}</Text>
-              </View>
             </Animated.View>
           )}
 
-          {/* Watering Tips */}
+          {/* Tips Section with Stars */}
           <View style={styles.tipsContainer}>
-            <Text style={styles.tipsTitle}>Watering Tips</Text>
+            <View style={styles.tipsHeader}>
+              <DecorativeStar size={16} color={colors.highlight} delay={0} />
+              <Text style={styles.tipsTitle}>Watering Tips</Text>
+              <DecorativeStar size={16} color={colors.highlight} delay={500} />
+            </View>
             
-            <View style={styles.tipCard}>
-              <IconSymbol name="sun.max.fill" size={24} color={colors.accent} />
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>Best Time to Water</Text>
-                <Text style={styles.tipText}>
-                  Water early morning (6-10 AM) or evening (4-7 PM) to minimize evaporation
-                </Text>
-              </View>
+            <View style={styles.tipItem}>
+              <IconSymbol name="sun.max.fill" size={20} color={colors.highlight} />
+              <Text style={styles.tipText}>Water early morning or late evening to reduce evaporation</Text>
             </View>
 
-            <View style={styles.tipCard}>
-              <IconSymbol name="thermometer.sun.fill" size={24} color={colors.accent} />
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>Weather Matters</Text>
-                <Text style={styles.tipText}>
-                  Reduce watering during rainy or humid days, increase during hot weather
-                </Text>
-              </View>
+            <View style={styles.tipItem}>
+              <IconSymbol name="drop.fill" size={20} color={colors.primary} />
+              <Text style={styles.tipText}>Water at the base of plants, avoid wetting leaves</Text>
             </View>
 
-            <View style={styles.tipCard}>
-              <IconSymbol name="drop.triangle.fill" size={24} color={colors.accent} />
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>Deep Watering</Text>
-                <Text style={styles.tipText}>
-                  Water deeply but less frequently to encourage strong root growth
-                </Text>
-              </View>
+            <View style={styles.tipItem}>
+              <IconSymbol name="thermometer" size={20} color={colors.accent} />
+              <Text style={styles.tipText}>Adjust watering based on weather and season</Text>
             </View>
 
-            <View style={styles.tipCard}>
-              <IconSymbol name="exclamationmark.triangle.fill" size={24} color={colors.accent} />
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>Avoid Overwatering</Text>
-                <Text style={styles.tipText}>
-                  Overwatering is the #1 cause of plant death. When in doubt, wait a day
-                </Text>
-              </View>
+            <View style={styles.tipItem}>
+              <IconSymbol name="hand.raised.fill" size={20} color={colors.secondary} />
+              <Text style={styles.tipText}>Check soil moisture before watering</Text>
             </View>
           </View>
         </ScrollView>
@@ -265,16 +268,35 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 30,
+    position: 'relative',
+  },
+  decorativeStarsTop: {
+    position: 'absolute',
+    top: -10,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  starTopLeft: {
+    position: 'absolute',
+    left: 20,
+    top: 0,
+  },
+  starTopRight: {
+    position: 'absolute',
+    right: 20,
+    top: 0,
   },
   title: {
     fontSize: 28,
     fontWeight: '800',
     color: colors.text,
-    marginTop: 12,
+    marginTop: 16,
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
   },
@@ -299,44 +321,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.secondary,
-    borderRadius: 10,
-    paddingHorizontal: 16,
+    borderRadius: 12,
     paddingVertical: 12,
-    fontSize: 15,
+    paddingHorizontal: 16,
+    fontSize: 16,
     color: colors.text,
-  },
-  helperText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 6,
-    fontStyle: 'italic',
   },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
-    paddingVertical: 8,
-  },
-  switchLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
   },
   calculateButton: {
     backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 10,
+    paddingVertical: 16,
+    borderRadius: 12,
     gap: 8,
     boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
     elevation: 3,
-  },
-  buttonDisabled: {
-    backgroundColor: colors.textSecondary,
-    opacity: 0.5,
   },
   buttonText: {
     color: '#FFFFFF',
@@ -344,99 +350,83 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   resultContainer: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 24,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+    elevation: 4,
   },
   resultHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 16,
+    marginBottom: 20,
+    gap: 16,
+  },
+  resultHeaderText: {
+    flex: 1,
   },
   resultTitle: {
     fontSize: 22,
     fontWeight: '700',
     color: colors.text,
+    marginBottom: 4,
   },
-  scheduleCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-    elevation: 4,
+  resultMessage: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
+  scheduleDetails: {
+    gap: 16,
   },
   scheduleItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 16,
   },
-  scheduleInfo: {
+  scheduleItemText: {
     flex: 1,
   },
   scheduleLabel: {
-    fontSize: 13,
+    fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   scheduleValue: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
   },
-  nextWateringValue: {
-    color: colors.accent,
-  },
-  recommendationCard: {
-    backgroundColor: colors.highlight,
-    borderRadius: 12,
-    padding: 16,
-    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
-    elevation: 2,
-  },
-  recommendationTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  recommendationText: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-  },
   tipsContainer: {
-    marginBottom: 24,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+    elevation: 4,
+  },
+  tipsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 20,
   },
   tipsTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 16,
   },
-  tipCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+  tipItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,
-    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
-    elevation: 2,
-  },
-  tipContent: {
-    flex: 1,
-  },
-  tipTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
+    marginBottom: 16,
   },
   tipText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    lineHeight: 18,
+    flex: 1,
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
   },
 });

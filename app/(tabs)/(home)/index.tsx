@@ -16,6 +16,10 @@ import { IconSymbol } from "@/components/IconSymbol";
 import { colors } from "@/styles/commonStyles";
 import * as ImagePicker from 'expo-image-picker';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import StarField from "@/components/StarField";
+import ShootingStar from "@/components/ShootingStar";
+import DecorativeStar from "@/components/DecorativeStar";
 
 interface DiseaseResult {
   name: string;
@@ -180,8 +184,16 @@ export default function ScanPlantScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header Section */}
+          {/* Header Section with Decorative Stars */}
           <View style={styles.header}>
+            <View style={styles.decorativeStarsTop}>
+              <View style={styles.starTopLeft}>
+                <DecorativeStar size={20} color={colors.primary} delay={0} />
+              </View>
+              <View style={styles.starTopRight}>
+                <DecorativeStar size={16} color={colors.highlight} delay={500} />
+              </View>
+            </View>
             <View style={styles.logoContainer}>
               <IconSymbol name="leaf.fill" size={48} color={colors.primary} />
               <View style={styles.scanIconOverlay}>
@@ -190,6 +202,14 @@ export default function ScanPlantScreen() {
             </View>
             <Text style={styles.title}>AGRISCAN</Text>
             <Text style={styles.subtitle}>AI-Powered Plant Health Assistant</Text>
+            <View style={styles.decorativeStarsBottom}>
+              <View style={styles.starBottomLeft}>
+                <DecorativeStar size={14} color={colors.secondary} delay={1000} />
+              </View>
+              <View style={styles.starBottomRight}>
+                <DecorativeStar size={18} color={colors.primary} delay={1500} />
+              </View>
+            </View>
           </View>
 
           {/* Image Preview or Placeholder */}
@@ -314,12 +334,63 @@ export default function ScanPlantScreen() {
             </View>
           )}
 
-          {/* Credits */}
-          <View style={styles.creditsContainer}>
-            <Text style={styles.creditsTitle}>Project Credits</Text>
-            <Text style={styles.creditsText}>Researchers: Affan & Eyad</Text>
-            <Text style={styles.creditsText}>Supervisor: Ms. Savera Rehman</Text>
-            <Text style={styles.creditsText}>NSRC Project - Qatar National Vision 2030</Text>
+          {/* Night Sky Credits Section */}
+          <View style={styles.creditsWrapper}>
+            <LinearGradient
+              colors={['#0a1128', '#1a1f3a', '#2d1b4e']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.nightSkyGradient}
+            >
+              <StarField starCount={80} height={350} />
+              <ShootingStar delay={2000} duration={1500} startX={50} startY={30} />
+              <ShootingStar delay={5000} duration={1800} startX={200} startY={80} />
+              <ShootingStar delay={8000} duration={1600} startX={100} startY={150} />
+              
+              <View style={styles.creditsContent}>
+                <View style={styles.moonContainer}>
+                  <View style={styles.moon}>
+                    <View style={styles.moonCrater1} />
+                    <View style={styles.moonCrater2} />
+                    <View style={styles.moonCrater3} />
+                  </View>
+                </View>
+
+                <View style={styles.creditsTextContainer}>
+                  <View style={styles.titleStarRow}>
+                    <DecorativeStar size={20} color="#FFD700" delay={0} />
+                    <Text style={styles.creditsTitle}>Project Credits</Text>
+                    <DecorativeStar size={20} color="#FFD700" delay={500} />
+                  </View>
+                  
+                  <View style={styles.creditLine}>
+                    <IconSymbol name="star.fill" size={14} color="#FFD700" />
+                    <Text style={styles.creditsText}>Researchers: Affan & Eyad</Text>
+                  </View>
+                  
+                  <View style={styles.creditLine}>
+                    <IconSymbol name="star.fill" size={14} color="#87CEEB" />
+                    <Text style={styles.creditsText}>Supervisor: Ms. Savera Rehman</Text>
+                  </View>
+                  
+                  <View style={styles.creditLine}>
+                    <IconSymbol name="star.fill" size={14} color="#98D8C8" />
+                    <Text style={styles.creditsText}>NSRC Project</Text>
+                  </View>
+                  
+                  <View style={styles.creditLine}>
+                    <IconSymbol name="star.fill" size={14} color="#F7DC6F" />
+                    <Text style={styles.creditsText}>Qatar National Vision 2030</Text>
+                  </View>
+
+                  <View style={styles.decorativeStarsCredits}>
+                    <DecorativeStar size={16} color="#FFD700" delay={1000} />
+                    <DecorativeStar size={12} color="#87CEEB" delay={1500} />
+                    <DecorativeStar size={14} color="#98D8C8" delay={2000} />
+                  </View>
+                </View>
+              </View>
+            </LinearGradient>
           </View>
         </ScrollView>
       </View>
@@ -342,6 +413,41 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 30,
+    position: 'relative',
+  },
+  decorativeStarsTop: {
+    position: 'absolute',
+    top: -10,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  starTopLeft: {
+    position: 'absolute',
+    left: 20,
+    top: 0,
+  },
+  starTopRight: {
+    position: 'absolute',
+    right: 20,
+    top: 0,
+  },
+  decorativeStarsBottom: {
+    position: 'absolute',
+    bottom: -20,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  starBottomLeft: {
+    position: 'absolute',
+    left: 40,
+    bottom: 0,
+  },
+  starBottomRight: {
+    position: 'absolute',
+    right: 40,
+    bottom: 0,
   },
   logoContainer: {
     position: 'relative',
@@ -545,25 +651,102 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     lineHeight: 18,
   },
-  creditsContainer: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
+  creditsWrapper: {
     marginTop: 8,
-    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
-    elevation: 2,
+    borderRadius: 16,
+    overflow: 'hidden',
+    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+    elevation: 6,
+  },
+  nightSkyGradient: {
+    position: 'relative',
+    minHeight: 350,
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+  },
+  creditsContent: {
+    position: 'relative',
+    zIndex: 10,
+    alignItems: 'center',
+  },
+  moonContainer: {
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  moon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F4F1DE',
+    boxShadow: '0px 0px 30px rgba(244, 241, 222, 0.6)',
+    position: 'relative',
+  },
+  moonCrater1: {
+    position: 'absolute',
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
+    backgroundColor: '#E8E4D0',
+    top: 20,
+    left: 25,
+  },
+  moonCrater2: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E8E4D0',
+    top: 45,
+    left: 50,
+  },
+  moonCrater3: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#E8E4D0',
+    top: 35,
+    left: 15,
+  },
+  creditsTextContainer: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  titleStarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 20,
   },
   creditsTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 8,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(255, 215, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
+  creditLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
   },
   creditsText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 4,
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '500',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  decorativeStarsCredits: {
+    flexDirection: 'row',
+    gap: 20,
+    marginTop: 20,
+    justifyContent: 'center',
   },
   headerButtonContainer: {
     padding: 8,
