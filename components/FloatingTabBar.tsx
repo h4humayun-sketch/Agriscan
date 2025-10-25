@@ -91,13 +91,16 @@ export default function FloatingTabBar({
 
   const indicatorStyle = useAnimatedStyle(() => {
     const tabWidth = (containerWidth - 16) / tabs.length;
+    const indicatorWidth = tabWidth - 4; // Slightly smaller for better visual alignment
+    
     return {
+      width: indicatorWidth,
       transform: [
         {
           translateX: interpolate(
             animatedValue.value,
-            [0, tabs.length - 1],
-            [0, tabWidth * (tabs.length - 1)]
+            tabs.map((_, i) => i),
+            tabs.map((_, i) => (tabWidth * i) + 2) // Add small offset for centering
           ),
         },
       ],
@@ -126,11 +129,6 @@ export default function FloatingTabBar({
       ...styles.background,
       backgroundColor: Platform.OS === 'ios' ? 'transparent' : 'rgba(255, 255, 255, 0.1)',
     },
-    indicator: {
-      ...styles.indicator,
-      backgroundColor: colors.secondary,
-      width: `${(100 / tabs.length) - 3}%`,
-    },
   };
 
   return (
@@ -147,7 +145,7 @@ export default function FloatingTabBar({
           style={[dynamicStyles.blurContainer, { borderRadius }]}
         >
           <View style={dynamicStyles.background} />
-          <Animated.View style={[dynamicStyles.indicator, indicatorStyle]} />
+          <Animated.View style={[styles.indicator, indicatorStyle]} />
           <View style={styles.tabsContainer}>
             {tabs.map((tab, index) => {
               const isActive = activeTabIndex === index;
@@ -208,7 +206,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     left: 8,
-    bottom: 8,
+    height: 44,
+    backgroundColor: colors.secondary,
     borderRadius: 17,
   },
   tabsContainer: {

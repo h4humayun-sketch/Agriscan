@@ -7,7 +7,7 @@ import FloatingTabBar, { TabBarItem } from '@/components/FloatingTabBar';
 import { colors } from '@/styles/commonStyles';
 
 export default function TabLayout() {
-  // Define the tabs configuration for AGRISCAN
+  // Define the tabs configuration for AGRISCAN (Community section removed)
   const tabs: TabBarItem[] = [
     {
       name: '(home)',
@@ -26,12 +26,6 @@ export default function TabLayout() {
       route: '/(tabs)/plants',
       icon: 'leaf.fill',
       label: 'My Plants',
-    },
-    {
-      name: 'community',
-      route: '/(tabs)/community',
-      icon: 'person.3.fill',
-      label: 'Community',
     },
     {
       name: 'sustainability',
@@ -57,10 +51,6 @@ export default function TabLayout() {
           <Icon sf="leaf.fill" drawable="ic_leaf" />
           <Label>My Plants</Label>
         </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="community">
-          <Icon sf="person.3.fill" drawable="ic_community" />
-          <Label>Community</Label>
-        </NativeTabs.Trigger>
         <NativeTabs.Trigger name="sustainability">
           <Icon sf="globe" drawable="ic_globe" />
           <Label>Dashboard</Label>
@@ -81,7 +71,6 @@ export default function TabLayout() {
         <Stack.Screen name="(home)" />
         <Stack.Screen name="watering" />
         <Stack.Screen name="plants" />
-        <Stack.Screen name="community" />
         <Stack.Screen name="sustainability" />
       </Stack>
       <FloatingTabBar tabs={tabs} containerWidth={360} />

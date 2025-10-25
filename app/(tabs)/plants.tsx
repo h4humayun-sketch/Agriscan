@@ -26,35 +26,8 @@ interface Plant {
 }
 
 export default function MyPlantsScreen() {
-  const [plants] = useState<Plant[]>([
-    {
-      id: '1',
-      name: 'Tomato Plant',
-      type: 'Vegetable',
-      dateAdded: new Date(2024, 0, 15),
-      health: 85,
-      lastScanned: new Date(2024, 2, 1),
-      imageUrl: 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=400',
-    },
-    {
-      id: '2',
-      name: 'Rose Bush',
-      type: 'Flower',
-      dateAdded: new Date(2024, 1, 10),
-      health: 92,
-      lastScanned: new Date(2024, 2, 3),
-      imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400',
-    },
-    {
-      id: '3',
-      name: 'Basil',
-      type: 'Herb',
-      dateAdded: new Date(2024, 1, 20),
-      health: 78,
-      lastScanned: new Date(2024, 2, 2),
-      imageUrl: 'https://images.unsplash.com/photo-1618375569909-3c8616cf7733?w=400',
-    },
-  ]);
+  // Start with empty plants array - users will add their own plants
+  const [plants] = useState<Plant[]>([]);
 
   const getHealthColor = (health: number) => {
     if (health >= 80) return colors.primary;
@@ -110,79 +83,120 @@ export default function MyPlantsScreen() {
             <Text style={styles.subtitle}>Track your plants&apos; health and growth</Text>
           </View>
 
-          {/* Stats Overview with Stars */}
-          <View style={styles.statsContainer}>
-            <View style={styles.statCard}>
-              <DecorativeStar size={20} color={colors.primary} delay={0} />
-              <Text style={styles.statNumber}>{plants.length}</Text>
-              <Text style={styles.statLabel}>Total Plants</Text>
-            </View>
-            <View style={styles.statCard}>
-              <DecorativeStar size={20} color={colors.highlight} delay={500} />
-              <Text style={styles.statNumber}>
-                {Math.round(plants.reduce((acc, p) => acc + p.health, 0) / plants.length)}%
-              </Text>
-              <Text style={styles.statLabel}>Avg Health</Text>
-            </View>
-          </View>
+          {plants.length > 0 ? (
+            <>
+              {/* Stats Overview with Stars */}
+              <View style={styles.statsContainer}>
+                <View style={styles.statCard}>
+                  <DecorativeStar size={20} color={colors.primary} delay={0} />
+                  <Text style={styles.statNumber}>{plants.length}</Text>
+                  <Text style={styles.statLabel}>Total Plants</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <DecorativeStar size={20} color={colors.highlight} delay={500} />
+                  <Text style={styles.statNumber}>
+                    {Math.round(plants.reduce((acc, p) => acc + p.health, 0) / plants.length)}%
+                  </Text>
+                  <Text style={styles.statLabel}>Avg Health</Text>
+                </View>
+              </View>
 
-          {/* Plants List */}
-          <View style={styles.plantsContainer}>
-            {plants.map((plant, index) => (
-              <Animated.View 
-                key={plant.id} 
-                entering={FadeIn.delay(index * 100)}
-                style={styles.plantCard}
-              >
-                <Image source={{ uri: plant.imageUrl }} style={styles.plantImage} />
-                
-                <View style={styles.plantInfo}>
-                  <View style={styles.plantHeader}>
-                    <View style={styles.plantNameContainer}>
-                      <Text style={styles.plantName}>{plant.name}</Text>
-                      <View style={styles.plantTypeTag}>
-                        <IconSymbol name="leaf.fill" size={12} color={colors.primary} />
-                        <Text style={styles.plantType}>{plant.type}</Text>
+              {/* Plants List */}
+              <View style={styles.plantsContainer}>
+                {plants.map((plant, index) => (
+                  <Animated.View 
+                    key={plant.id} 
+                    entering={FadeIn.delay(index * 100)}
+                    style={styles.plantCard}
+                  >
+                    <Image source={{ uri: plant.imageUrl }} style={styles.plantImage} />
+                    
+                    <View style={styles.plantInfo}>
+                      <View style={styles.plantHeader}>
+                        <View style={styles.plantNameContainer}>
+                          <Text style={styles.plantName}>{plant.name}</Text>
+                          <View style={styles.plantTypeTag}>
+                            <IconSymbol name="leaf.fill" size={12} color={colors.primary} />
+                            <Text style={styles.plantType}>{plant.type}</Text>
+                          </View>
+                        </View>
+                        <DecorativeStar size={16} color={getHealthColor(plant.health)} delay={index * 200} />
+                      </View>
+
+                      <View style={styles.healthContainer}>
+                        <View style={styles.healthBar}>
+                          <View 
+                            style={[
+                              styles.healthFill, 
+                              { 
+                                width: `${plant.health}%`,
+                                backgroundColor: getHealthColor(plant.health)
+                              }
+                            ]} 
+                          />
+                        </View>
+                        <Text style={[styles.healthText, { color: getHealthColor(plant.health) }]}>
+                          {plant.health}% - {getHealthStatus(plant.health)}
+                        </Text>
+                      </View>
+
+                      <View style={styles.plantDetails}>
+                        <View style={styles.detailItem}>
+                          <IconSymbol name="calendar" size={16} color={colors.textSecondary} />
+                          <Text style={styles.detailText}>
+                            {getDaysSinceAdded(plant.dateAdded)} days old
+                          </Text>
+                        </View>
+                        <View style={styles.detailItem}>
+                          <IconSymbol name="camera.fill" size={16} color={colors.textSecondary} />
+                          <Text style={styles.detailText}>
+                            Last scan: {plant.lastScanned.toLocaleDateString()}
+                          </Text>
+                        </View>
                       </View>
                     </View>
-                    <DecorativeStar size={16} color={getHealthColor(plant.health)} delay={index * 200} />
+                  </Animated.View>
+                ))}
+              </View>
+            </>
+          ) : (
+            /* Empty State */
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIconContainer}>
+                <DecorativeStar size={24} color={colors.primary} delay={0} />
+                <IconSymbol name="leaf.fill" size={80} color={colors.secondary} />
+                <DecorativeStar size={20} color={colors.highlight} delay={500} />
+              </View>
+              <Text style={styles.emptyTitle}>No Plants Yet</Text>
+              <Text style={styles.emptyDescription}>
+                Start your plant journal by scanning your first plant! 
+                Use the camera to detect diseases and track your plants&apos; health over time.
+              </Text>
+              
+              <View style={styles.emptySteps}>
+                <View style={styles.stepItem}>
+                  <View style={styles.stepNumber}>
+                    <Text style={styles.stepNumberText}>1</Text>
                   </View>
-
-                  <View style={styles.healthContainer}>
-                    <View style={styles.healthBar}>
-                      <View 
-                        style={[
-                          styles.healthFill, 
-                          { 
-                            width: `${plant.health}%`,
-                            backgroundColor: getHealthColor(plant.health)
-                          }
-                        ]} 
-                      />
-                    </View>
-                    <Text style={[styles.healthText, { color: getHealthColor(plant.health) }]}>
-                      {plant.health}% - {getHealthStatus(plant.health)}
-                    </Text>
-                  </View>
-
-                  <View style={styles.plantDetails}>
-                    <View style={styles.detailItem}>
-                      <IconSymbol name="calendar" size={16} color={colors.textSecondary} />
-                      <Text style={styles.detailText}>
-                        {getDaysSinceAdded(plant.dateAdded)} days old
-                      </Text>
-                    </View>
-                    <View style={styles.detailItem}>
-                      <IconSymbol name="camera.fill" size={16} color={colors.textSecondary} />
-                      <Text style={styles.detailText}>
-                        Last scan: {plant.lastScanned.toLocaleDateString()}
-                      </Text>
-                    </View>
-                  </View>
+                  <Text style={styles.stepText}>Scan a plant using the camera</Text>
                 </View>
-              </Animated.View>
-            ))}
-          </View>
+                
+                <View style={styles.stepItem}>
+                  <View style={styles.stepNumber}>
+                    <Text style={styles.stepNumberText}>2</Text>
+                  </View>
+                  <Text style={styles.stepText}>Get AI-powered disease detection</Text>
+                </View>
+                
+                <View style={styles.stepItem}>
+                  <View style={styles.stepNumber}>
+                    <Text style={styles.stepNumberText}>3</Text>
+                  </View>
+                  <Text style={styles.stepText}>Save and track your plant&apos;s progress</Text>
+                </View>
+              </View>
+            </View>
+          )}
 
           {/* Add Plant Button */}
           <Pressable style={styles.addButton}>
@@ -369,6 +383,66 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 13,
     color: colors.textSecondary,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
+  emptyIconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  emptyDescription: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 32,
+  },
+  emptySteps: {
+    width: '100%',
+    gap: 16,
+  },
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: colors.card,
+    padding: 16,
+    borderRadius: 12,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
+    elevation: 2,
+  },
+  stepNumber: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepNumberText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  stepText: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '500',
   },
   addButton: {
     backgroundColor: colors.primary,
